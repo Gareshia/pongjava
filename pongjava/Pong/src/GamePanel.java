@@ -176,7 +176,7 @@ public class GamePanel  extends JPanel implements Runnable {
 		}
 		else
 		{
-			if(this.keylistener.isSpace())
+			if(this.keylistener.isSpace());
 				
 		}
 	}
