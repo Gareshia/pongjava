@@ -32,6 +32,9 @@ public class GamePanel  extends JPanel implements Runnable {
 	BufferedImage ballBild;
 	BufferedImage blockBild;
 	BufferedImage lebenBild;
+	
+	private boolean pauseGame = false; //die Variable zum steuern des Pausen-modus
+	
 	final String BILDORDNER = "graphics\\";  //der Pfad des Bilderordners
 	final String SCHLÄGER_BILDNAME = "schlaegerKlein.png";
 	final String BALL_BILDNAME = "ball.png";
@@ -149,25 +152,33 @@ public class GamePanel  extends JPanel implements Runnable {
 	 */
 	public void checkKeys()
 	{
-		if(this.keylistener.isLeft())
-			for(Sprite s : spieler){
-				s.setHorizontalSpeed(-SPIELERSPEED);
-			}
+		if(this.pauseGame == false)
+		{
+			if(this.keylistener.isLeft())
+				for(Sprite s : spieler){
+					s.setHorizontalSpeed(-SPIELERSPEED);
+				}
+					
+			if(this.keylistener.isRight())
+				for(Sprite s : spieler){
+					s.setHorizontalSpeed(SPIELERSPEED);
+				}
+					
+			if(!this.keylistener.isRight() && !this.keylistener.isLeft() )
+				for(Sprite s : spieler){
+					s.setHorizontalSpeed(0);
+				}
+			
+			if(!this.keylistener.isDown()  &&  !this.keylistener.isUp())
+				for(Sprite s : spieler){
+					s.setVerticalSpeed(0);
+				}
+		}
+		else
+		{
+			if(this.keylistener.isSpace())
 				
-		if(this.keylistener.isRight())
-			for(Sprite s : spieler){
-				s.setHorizontalSpeed(SPIELERSPEED);
-			}
-				
-		if(!this.keylistener.isRight() && !this.keylistener.isLeft() )
-			for(Sprite s : spieler){
-				s.setHorizontalSpeed(0);
-			}
-		
-		if(!this.keylistener.isDown()  &&  !this.keylistener.isUp())
-			for(Sprite s : spieler){
-				s.setVerticalSpeed(0);
-			}
+		}
 	}
 	
 	/**
@@ -198,23 +209,28 @@ public class GamePanel  extends JPanel implements Runnable {
 	{
 		while(spielFortsetzen)
 		{
-			this.berechneFPS(); //berechnung der aktuellen fps
 			this.checkKeys();	//die tastatur wird auf gedrückte tasten abgefragt
-			
-			this.checkIntersections();
-			
-			
-			this.bewegeObjekte(delta); //die Objekte werden bewegt
-			
-			
-			this.deleteBlocks();
-			this.deleteLives();
-			this.repaint(); //stößt drawComponents() an!
-			
-			try{
-				t.sleep(10);
-			}catch(InterruptedException e) {}
+			if(pauseGame == false)
+			{
+				this.berechneFPS(); //berechnung der aktuellen fps
+				
+				
+				this.checkIntersections();
+				
+				
+				this.bewegeObjekte(delta); //die Objekte werden bewegt
+				
+				
+				this.deleteBlocks();
+				this.deleteLives();
+				this.repaint(); //stößt drawComponents() an!
+				
+				try{
+					t.sleep(10);
+				}catch(InterruptedException e) {}
+			}	
 		}
+			
 	}
 	
 	/**
