@@ -10,6 +10,8 @@ public class Keylistener implements KeyListener {
 	boolean right = false;
 	boolean left = false;
 	
+	boolean space = false;
+	
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
@@ -25,6 +27,8 @@ public class Keylistener implements KeyListener {
 		if(e.getKeyCode() == KeyEvent.VK_DOWN)
 			down = true;
 		
+		if(e.getKeyCode() == KeyEvent.VK_SPACE)
+			space = true;
 		
 	}
 
@@ -42,6 +46,9 @@ public class Keylistener implements KeyListener {
 		
 		if(e.getKeyCode() == KeyEvent.VK_DOWN)
 			down = false;
+		
+		if(e.getKeyCode() == KeyEvent.VK_SPACE)
+			space = false;
 		
 	}
 
@@ -82,6 +89,11 @@ public class Keylistener implements KeyListener {
 
 	public void setRight(boolean right) {
 		this.right = right;
+	}
+	
+	public boolean isSpace()
+	{
+		return this.space;
 	}
 
 }
