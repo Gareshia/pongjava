@@ -14,14 +14,14 @@ import javax.swing.JPanel;
 
 public class GamePanel  extends JPanel implements Runnable {
 	
-	Vector<Sprite> spieler = new Vector<Sprite>(); //der Vektor, in dem die Sprites der Schläger abgelegt werden
-	Vector<Sprite> blöcke = new Vector<Sprite>(); //Verktor für die Blöcke
-	Vector<Ball> bälle = new Vector<Ball>(); //Verktor für die Blöcke
-	Vector<Sprite> lebenList = new Vector<Sprite>();
+	Vector<Sprite> spieler;  //der Vektor, in dem die Sprites der Schläger abgelegt werden
+	Vector<Sprite> blöcke;  //Verktor für die Blöcke
+	Vector<Ball> bälle;  //Verktor für die Blöcke
+	Vector<Sprite> lebenList;
 	
 	
-	Vector<Sprite> löschen_blocks= new Vector<Sprite>();
-	Vector<Sprite> löschen_leben = new Vector<Sprite>();
+	Vector<Sprite> löschen_blocks;
+	Vector<Sprite> löschen_leben;
 	
 	int punkte = 0;
 	Keylistener keylistener = new Keylistener(); //der Keylistener wird instanziiert
@@ -32,14 +32,20 @@ public class GamePanel  extends JPanel implements Runnable {
 	BufferedImage ballBild;
 	BufferedImage blockBild;
 	BufferedImage lebenBild;
+	BufferedImage pauseBild;
+	BufferedImage gameOverBild;
 	
+	private boolean gameOver = false;
 	private boolean pauseGame = false; //die Variable zum steuern des Pausen-modus
-	
+	Sprite pause;
+	Sprite gameOverPic;
 	final String BILDORDNER = "graphics\\";  //der Pfad des Bilderordners
 	final String SCHLÄGER_BILDNAME = "schlaegerKlein.png";
 	final String BALL_BILDNAME = "ball.png";
 	final String BLOCK_BILDNAME = "block.png";
 	final String LEBEN_BILDNAME = "leben.png";
+	final String PAUSE_BILDNAME = "pause.png";
+	final String GAMEOVER_BILDNAME = "gameOver.png";
 	static boolean richtungVor = true; //hilfsvariable für das zusammensetzen des Bilderstrings
 	static int bilderIndex = 0;
 	
@@ -83,6 +89,8 @@ public class GamePanel  extends JPanel implements Runnable {
 	{
 		super.paintComponent(g);
 		
+		this.deleteBlocks();
+		this.deleteLives();
 		this.zeichneObjekte(g);
 		
 		g.setColor(Color.red);
@@ -105,6 +113,8 @@ public class GamePanel  extends JPanel implements Runnable {
 	}
 	
 	
+	
+	
 	/**
 	 * diese Methode wird im Konstruktor aufgerufen und initialisiert alle nötigen Variablen und
 	 * Objekte
@@ -115,11 +125,27 @@ public class GamePanel  extends JPanel implements Runnable {
 	 */
 	public void inits()
 	{
+		this.blöcke = new Vector<Sprite>();
+		this.bälle = new Vector<Ball>();
+		this.spieler = new Vector<Sprite>();
+		this.löschen_blocks = new Vector<Sprite>();
+		this.löschen_leben = new Vector<Sprite>();
+		this.lebenList = new Vector<Sprite>();
+		this.punkte = 0;
 		this.last = System.nanoTime();
 		this.spielerBild = ladeBild(SCHLÄGER_BILDNAME);
 		this.ballBild = ladeBild(BALL_BILDNAME);
 		this.blockBild = ladeBild(BLOCK_BILDNAME);
 		this.lebenBild = ladeBild(LEBEN_BILDNAME);
+		this.pauseBild = ladeBild(PAUSE_BILDNAME);
+		this.gameOverBild = ladeBild(GAMEOVER_BILDNAME);
+		
+		gameOverPic = new Sprite(this.getWidth()/2 - gameOverBild.getWidth()/2, this.getHeight()/2- gameOverBild.getHeight()/2, gameOverBild.getHeight(), gameOverBild.getWidth(),
+				gameOverBild, this);
+
+		
+		pause = new Sprite(this.getWidth()/2 - pauseBild.getWidth()/2, this.getHeight()/2- pauseBild.getHeight()/2, pauseBild.getHeight(), pauseBild.getWidth(),
+														pauseBild, this);
 		
 		Sprite leben1 = new Sprite(750, 20, lebenBild.getHeight(), lebenBild.getWidth(), lebenBild, this);
 		Sprite leben2 = new Sprite(750 + lebenBild.getWidth() + 1, 20, lebenBild.getHeight(), lebenBild.getWidth(), lebenBild, this);
@@ -141,6 +167,36 @@ public class GamePanel  extends JPanel implements Runnable {
 		lebenList.add(leben2);
 		lebenList.add(leben3);
 		
+		this.resetBall();
+		
+		this.gameOver = false;
+		this.pauseGame = false;
+		this.leben = 3;
+		
+	}
+	
+	/**
+	 * hier wird das spiel Pausiert, indem pauseGame "true" gesetzt wird.
+	 */
+	private void pauseGame()
+	{
+		this.pauseGame = true;
+		keylistener.setSpace(true);
+	}
+	
+	
+	/**
+	 * diese Methode setzt das spiel fort. Dabei werden auch die variablen zur 
+	 * Errechnung der Framerate wieder auf 0 gesetzt.
+	 */
+	private void resumeGame()
+	{
+		
+		this.last = System.nanoTime();
+		
+		
+		this.pauseGame = false;
+		keylistener.setSpace(false);
 	}
 	
 	
@@ -173,11 +229,26 @@ public class GamePanel  extends JPanel implements Runnable {
 				for(Sprite s : spieler){
 					s.setVerticalSpeed(0);
 				}
+			this.pauseGame = keylistener.isSpace();
+			
 		}
 		else
 		{
-			if(this.keylistener.isSpace());
+			if(gameOver == false)
+			{
+				if(keylistener.isSpace() == false)
+				{
+					resumeGame();
+				}
+			}
+			else
+				if(keylistener.isSpace() == false)
+				{
+					startNewGame();
+				}
 				
+					
+			
 		}
 	}
 	
@@ -210,6 +281,7 @@ public class GamePanel  extends JPanel implements Runnable {
 		while(spielFortsetzen)
 		{
 			this.checkKeys();	//die tastatur wird auf gedrückte tasten abgefragt
+			this.repaint(); //stößt drawComponents() an!
 			if(pauseGame == false)
 			{
 				this.berechneFPS(); //berechnung der aktuellen fps
@@ -223,7 +295,7 @@ public class GamePanel  extends JPanel implements Runnable {
 				
 				this.deleteBlocks();
 				this.deleteLives();
-				this.repaint(); //stößt drawComponents() an!
+				
 				
 				try{
 					t.sleep(10);
@@ -333,19 +405,63 @@ public class GamePanel  extends JPanel implements Runnable {
 	}
 	
 	/**
-	 * in dieser Methode werden die Leben des spielers um eins reduziert. 
+	 * mit dieser Methode wird der Ball wieder in die mitte des Spielfeldes gesetzt.
+	 */
+	private void resetBall()
+	{
+		for(Ball i: bälle)
+		{
+			i.resetPosition();
+			i.resetMovement();
+		}
+			
+	}
+	
+	
+	/**
+	 * in dieser Methode werden die Leben des spielers um eins reduziert.
+	 * außerdem wird der Ball in die Mitte des Spielfeldes gesetzt und das spiel pausiert. 
 	 */
 	private void reduceLives()
 	{
+		pauseGame();
+		
+		
 		leben--;
 		if(leben > -1)
 		{
 			Sprite deleteLife = lebenList.lastElement();
 			löschen_leben.add(deleteLife);
+			resetBall();
 		}
 		
+		else
+		{
+			gameOver();
+		}
 			
 	}
+	
+	/**
+	 * mit dieser Methode wird ein neues Spiel gestartet, indem inits() aufgerufen wird
+	 */
+	private void startNewGame()
+	{
+		this.blöcke = null;
+		this.bälle = null;
+		this.lebenList = null;
+		this.spieler = null;
+		this.inits();
+		
+	}
+	
+	/**
+	 * diese methode setzt das spiel "gameOver" und pausiert das spiel.
+	 */
+	private void gameOver()
+	{
+		this.gameOver = true;
+		pauseGame();	}
 	
 	/**
 	 * hier werden die Blöcke, die im "löschen"-vektor sind aus dem blöcke- vektor entfernt
@@ -385,7 +501,22 @@ public class GamePanel  extends JPanel implements Runnable {
 		
 		for(Sprite s: lebenList)
 			s.zeichneDich(g);
-			
+		
+		if(pauseGame == true && gameOver == false)
+			showPause(g);
+		
+		if(gameOver == true)
+			showGameOver(g);
+	}
+	
+	private void showGameOver(Graphics g)
+	{
+		gameOverPic.zeichneDich(g);
+	}
+	
+	private void showPause(Graphics g)
+	{
+		pause.zeichneDich(g);
 	}
 	
 	/**

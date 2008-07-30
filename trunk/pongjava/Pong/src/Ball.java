@@ -83,7 +83,19 @@ public class Ball extends Sprite  {
 		this.y += verticalSpeed * (delta/1e9); 
 	}
 	
+	/**
+	 * diese methode setzt den Ball in die mitte des spielfelds
+	 */
+	public void resetPosition()
+	{
+		this.x = spielfeld.getWidth()/2;
+		this.y = spielfeld.getHeight()/2;
+	}
 	
+	public void resetMovement()
+	{
+		horizontalSpeed = 0;
+	}
 	
 	
 	
