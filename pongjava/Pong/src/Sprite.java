@@ -6,7 +6,7 @@ import java.awt.image.BufferedImage;
 public class Sprite extends Rectangle2D.Double implements  Drawable{
 	
 	BufferedImage bild; //das bilder array für die einzelbilder 
-	final double SPEED = 300;
+	final double SPEED = 400;
 	double horizontalSpeed;  //um diesen wert wird die x- position erhöht, wenn der Block bewegt wird
 	double verticalSpeed;   // um diesen Wert wird die y- position erhöht bei bewegung
 	GamePanel spielfeld;
