@@ -39,7 +39,7 @@ public class GamePanel  extends JPanel implements Runnable {
 	private boolean pauseGame = false; //die Variable zum steuern des Pausen-modus
 	Sprite pause;
 	Sprite gameOverPic;
-	final String BILDORDNER = "graphics\\";  //der Pfad des Bilderordners
+	final String BILDORDNER = "graphics/";  //der Pfad des Bilderordners
 	final String SCHLÄGER_BILDNAME = "schlaegerKlein.png";
 	final String BALL_BILDNAME = "ball.png";
 	final String BLOCK_BILDNAME = "block.png";
@@ -147,19 +147,40 @@ public class GamePanel  extends JPanel implements Runnable {
 		pause = new Sprite(this.getWidth()/2 - pauseBild.getWidth()/2, this.getHeight()/2- pauseBild.getHeight()/2, pauseBild.getHeight(), pauseBild.getWidth(),
 														pauseBild, this);
 		
-		Sprite leben1 = new Sprite(750, 20, lebenBild.getHeight(), lebenBild.getWidth(), lebenBild, this);
-		Sprite leben2 = new Sprite(750 + lebenBild.getWidth() + 1, 20, lebenBild.getHeight(), lebenBild.getWidth(), lebenBild, this);
-		Sprite leben3 = new Sprite(750 + 2*lebenBild.getWidth() + 1, 20, lebenBild.getHeight(), lebenBild.getWidth(), lebenBild, this);
+		Sprite leben1 = new Sprite(750, 1, lebenBild.getHeight(), lebenBild.getWidth(), lebenBild, this);
+		Sprite leben2 = new Sprite(750 + lebenBild.getWidth() + 1, 1, lebenBild.getHeight(), lebenBild.getWidth(), lebenBild, this);
+		Sprite leben3 = new Sprite(750 + 2*lebenBild.getWidth() + 1, 1, lebenBild.getHeight(), lebenBild.getWidth(), lebenBild, this);
 		
 		Sprite spieler1 = new Sprite(this.getWidth()/2 - spielerBild.getWidth()/2 , this.getHeight()- spielerBild.getHeight() - 20,
 				spielerBild.getHeight(), spielerBild.getWidth(), this.spielerBild, this);
 		
 		Ball ball1 = new Ball(this.getWidth()/2, this.getHeight()- 50, ballBild.getHeight(), 
-						ballBild.getWidth(), this.ballBild, this, 200D, spieler1);
+						ballBild.getWidth(), this.ballBild, this, 400D, spieler1);
 		
-		Sprite block1 = new Sprite(this.getWidth()/2 - blockBild.getWidth()/2, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		Sprite[] blocks = new Sprite[16];
 		
-		blöcke.add(block1);
+		blocks[0] = new Sprite(5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[1] = new Sprite(blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[2] = new Sprite(2*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[3] = new Sprite(3*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[4] = new Sprite(4*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[5] = new Sprite(5*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[6] = new Sprite(6*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[7] = new Sprite(7*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		
+		blocks[8] = new Sprite(5, 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[9] = new Sprite(5+ blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[10] = new Sprite(5+2*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[11] = new Sprite(5+3*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[12] = new Sprite(5+4*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[13] = new Sprite(5+5*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[14] = new Sprite(5+6*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[15] = new Sprite(5+7*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		
+		
+		for(Sprite s: blocks)
+			blöcke.add(s);
+		
 		spieler.add(spieler1);
 		bälle.add(ball1);
 		
