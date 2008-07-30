@@ -28,7 +28,7 @@ public class Keylistener implements KeyListener {
 			down = true;
 		
 		if(e.getKeyCode() == KeyEvent.VK_SPACE)
-			space = true;
+			space = !space;
 		
 	}
 
@@ -47,8 +47,7 @@ public class Keylistener implements KeyListener {
 		if(e.getKeyCode() == KeyEvent.VK_DOWN)
 			down = false;
 		
-		if(e.getKeyCode() == KeyEvent.VK_SPACE)
-			space = false;
+		
 		
 	}
 
@@ -96,4 +95,8 @@ public class Keylistener implements KeyListener {
 		return this.space;
 	}
 
+	public void setSpace(boolean _space)
+	{
+		this.space = _space;
+	}
 }
