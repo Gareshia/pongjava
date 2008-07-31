@@ -16,6 +16,8 @@ public class Ball extends Sprite  {
 		this.schläger = _schläger;
 		this.setzeStartWerte();
 		
+	
+		
 	}
 	
 	private void setzeStartWerte()
