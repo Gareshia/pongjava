@@ -15,12 +15,12 @@ import javax.swing.JPanel;
 public class GamePanel  extends JPanel implements Runnable {
 	
 	Vector<Sprite> spieler;  //der Vektor, in dem die Sprites der Schläger abgelegt werden
-	Vector<Sprite> blöcke;  //Verktor für die Blöcke
+	Vector<Block> blöcke;  //Verktor für die Blöcke
 	Vector<Ball> bälle;  //Verktor für die Blöcke
 	Vector<Sprite> lebenList;
 	
-	
-	Vector<Sprite> löschen_blocks;
+	Vector<Block> buffer_löschen_blocks;
+	Vector<Block> löschen_blocks;
 	Vector<Sprite> löschen_leben;
 	
 	int punkte = 0;
@@ -34,12 +34,17 @@ public class GamePanel  extends JPanel implements Runnable {
 	BufferedImage lebenBild;
 	BufferedImage pauseBild;
 	BufferedImage gameOverBild;
+	BufferedImage[] blockAnimationBilder;
+	BufferedImage backBild;
 	
 	private boolean gameOver = false;
 	private boolean pauseGame = false; //die Variable zum steuern des Pausen-modus
 	Sprite pause;
 	Sprite gameOverPic;
+	Sprite background;
+	
 	final String BILDORDNER = "graphics/";  //der Pfad des Bilderordners
+	final String BACKGROUND_BILDNAME = "back.png";
 	final String SCHLÄGER_BILDNAME = "schlaegerKlein.png";
 	final String BALL_BILDNAME = "ball.png";
 	final String BLOCK_BILDNAME = "block.png";
@@ -125,10 +130,11 @@ public class GamePanel  extends JPanel implements Runnable {
 	 */
 	public void inits()
 	{
-		this.blöcke = new Vector<Sprite>();
+		this.buffer_löschen_blocks = new Vector<Block>();
+		this.blöcke = new Vector<Block>();
 		this.bälle = new Vector<Ball>();
 		this.spieler = new Vector<Sprite>();
-		this.löschen_blocks = new Vector<Sprite>();
+		this.löschen_blocks = new Vector<Block>();
 		this.löschen_leben = new Vector<Sprite>();
 		this.lebenList = new Vector<Sprite>();
 		this.punkte = 0;
@@ -139,13 +145,21 @@ public class GamePanel  extends JPanel implements Runnable {
 		this.lebenBild = ladeBild(LEBEN_BILDNAME);
 		this.pauseBild = ladeBild(PAUSE_BILDNAME);
 		this.gameOverBild = ladeBild(GAMEOVER_BILDNAME);
+		this.blockAnimationBilder = new BufferedImage[7];
+		this.backBild = ladeBild(BACKGROUND_BILDNAME);
+		
+		ladeBilder(blockAnimationBilder, BLOCK_BILDNAME, 7);
 		
 		gameOverPic = new Sprite(this.getWidth()/2 - gameOverBild.getWidth()/2, this.getHeight()/2- gameOverBild.getHeight()/2, gameOverBild.getHeight(), gameOverBild.getWidth(),
 				gameOverBild, this);
 
 		
+		background = new Sprite(5,5, this.getHeight(), this.getWidth(), backBild, this);
+		
 		pause = new Sprite(this.getWidth()/2 - pauseBild.getWidth()/2, this.getHeight()/2- pauseBild.getHeight()/2, pauseBild.getHeight(), pauseBild.getWidth(),
 														pauseBild, this);
+		
+		
 		
 		Sprite leben1 = new Sprite(750, 1, lebenBild.getHeight(), lebenBild.getWidth(), lebenBild, this);
 		Sprite leben2 = new Sprite(750 + lebenBild.getWidth() + 1, 1, lebenBild.getHeight(), lebenBild.getWidth(), lebenBild, this);
@@ -157,28 +171,32 @@ public class GamePanel  extends JPanel implements Runnable {
 		Ball ball1 = new Ball(this.getWidth()/2, this.getHeight()- 50, ballBild.getHeight(), 
 						ballBild.getWidth(), this.ballBild, this, 400D, spieler1);
 		
-		Sprite[] blocks = new Sprite[16];
+		Block[] blocks = new Block[20];
 		
-		blocks[0] = new Sprite(5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
-		blocks[1] = new Sprite(blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
-		blocks[2] = new Sprite(2*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
-		blocks[3] = new Sprite(3*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
-		blocks[4] = new Sprite(4*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
-		blocks[5] = new Sprite(5*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
-		blocks[6] = new Sprite(6*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
-		blocks[7] = new Sprite(7*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[0] = new Block(5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this, blockAnimationBilder);
+		blocks[1] = new Block(blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		blocks[2] = new Block(2*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		blocks[3] = new Block(3*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		blocks[4] = new Block(4*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		blocks[5] = new Block(5*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		blocks[6] = new Block(6*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		blocks[7] = new Block(7*blockBild.getWidth() + 5, 20, blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
 		
-		blocks[8] = new Sprite(5, 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
-		blocks[9] = new Sprite(5+ blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
-		blocks[10] = new Sprite(5+2*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
-		blocks[11] = new Sprite(5+3*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
-		blocks[12] = new Sprite(5+4*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
-		blocks[13] = new Sprite(5+5*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
-		blocks[14] = new Sprite(5+6*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
-		blocks[15] = new Sprite(5+7*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this);
+		blocks[8] = new Block(5, 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		blocks[9] = new Block(5+ blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		blocks[10] = new Block(5+2*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		blocks[11] = new Block(5+3*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		blocks[12] = new Block(5+4*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		blocks[13] = new Block(5+5*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		blocks[14] = new Block(5+6*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		blocks[15] = new Block(5+7*blockBild.getWidth(), 20+ blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
 		
+		blocks[16] = new Block(this.getWidth()/2-blockBild.getWidth(), 20+ 2*blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		blocks[17] = new Block(this.getWidth()/2-2*blockBild.getWidth(), 20+ 2*blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		blocks[18] = new Block(this.getWidth()/2+blockBild.getWidth(), 20+ 2*blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
 		
-		for(Sprite s: blocks)
+		blocks[19] = new Block(this.getWidth()/2, 20+ 2*blockBild.getHeight(), blockBild.getHeight(), blockBild.getWidth(), this.blockBild, this,blockAnimationBilder);
+		for(Block s: blocks)
 			blöcke.add(s);
 		
 		spieler.add(spieler1);
@@ -313,7 +331,7 @@ public class GamePanel  extends JPanel implements Runnable {
 				
 				this.bewegeObjekte(delta); //die Objekte werden bewegt
 				
-				
+				this.awaitDelete();
 				this.deleteBlocks();
 				this.deleteLives();
 				
@@ -345,6 +363,7 @@ public class GamePanel  extends JPanel implements Runnable {
 			
 			
 			bildURL = getClass().getClassLoader().getResource(BILDORDNER + bildName);
+			
 			
 			try{
 				returnImage = ImageIO.read(bildURL);
@@ -384,16 +403,20 @@ public class GamePanel  extends JPanel implements Runnable {
 					b.pralleAbVonSchläger();
 			}
 
-			Iterator<Sprite> blöckeIter = blöcke.iterator();
+			Iterator<Block> blöckeIter = blöcke.iterator();
 			while(blöckeIter.hasNext())
 			{
-				Sprite curr = blöckeIter.next();
-				if(b.intersects(curr))
+				Block curr = blöckeIter.next();
+				if(b.intersects(curr)&& curr.isHit() == false)
 				{
 					
 					b.pralleAbVonBlock(b);
 					//blöckeIter.remove();  //löschen des blocks aus dem vektor
-					löschen_blocks.add(curr);
+					
+					curr.setHit();
+					
+					buffer_löschen_blocks.add(curr);
+					
 					this.punkte += 10;
 					break;	//hier wird aus der for- schleife gesprungen, um fehler zu vermeiden, da das aktuell durchlaufene element gelöscht wurde
 					
@@ -424,6 +447,18 @@ public class GamePanel  extends JPanel implements Runnable {
 			}
 		}
 	}
+	
+	private void awaitDelete()
+	{
+		for(Block s: buffer_löschen_blocks)
+			if(s.animationFinished == true)
+			{
+				löschen_blocks.add(s);
+				
+			}
+				
+	}
+	
 	
 	/**
 	 * mit dieser Methode wird der Ball wieder in die mitte des Spielfeldes gesetzt.
@@ -490,10 +525,14 @@ public class GamePanel  extends JPanel implements Runnable {
 	 */
 	private void deleteBlocks()
 	{
-		for(Sprite k: löschen_blocks)
+		for(Block k: löschen_blocks)
+		{
 			blöcke.remove(k);
+			buffer_löschen_blocks.remove(k);
+		}
+				
 		
-		löschen_blocks = new Vector<Sprite>();
+		löschen_blocks = new Vector<Block>();
 	}
 	
 	/**
@@ -511,14 +550,23 @@ public class GamePanel  extends JPanel implements Runnable {
 	 */
 	public void zeichneObjekte(Graphics g)
 	{
+		background.zeichneDich(g);
+		
 		for(Sprite b: spieler)
 			b.zeichneDich(g);
 		
 		for(Ball s: bälle)
 			s.zeichneDich(g);
 		
-		for(Sprite s: blöcke)
+		for(Block s: blöcke)
+		{
+			if(s.isHit() == false)
 				s.zeichneDich(g);
+			else
+				if(s.animationFinished == false)
+					s.animierDich(g, delta);
+		}
+			
 		
 		for(Sprite s: lebenList)
 			s.zeichneDich(g);
@@ -550,6 +598,25 @@ public class GamePanel  extends JPanel implements Runnable {
 		t = new Thread(spielfeld);
 		t.start();
 		
+	}
+	
+	private String setzeBildnamenZusammen(String _name, int wert)
+	{
+		String endung = _name.substring(_name.length()-4, _name.length());
+		String anfang = _name.substring(0,_name.indexOf("."));
+		
+		return (anfang + wert + endung);
+	}
+	
+	
+	private void ladeBilder(BufferedImage[] bilderArray, String bildName, int anzahlBilder)
+	{
+		for(int i = 0; i < anzahlBilder; i++){
+			
+			bilderArray[i] = ladeBild(setzeBildnamenZusammen(bildName, i));
+			
+		}
+			
 	}
 	
 	
